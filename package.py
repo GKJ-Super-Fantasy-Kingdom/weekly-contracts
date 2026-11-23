@@ -19,6 +19,7 @@ assert manifest["name"] == "WeeklyContracts" and version == xml.findtext(".//Ver
 subprocess.run(["dotnet", "build", str(project), "-c", "Release"], cwd=root, check=True)
 dll = root / "bin/Release" / xml.findtext(".//TargetFramework") / "WeeklyContracts.dll"
 files = {
+    "LICENSE": root / "LICENSE",
     "plugins/WeeklyContracts.dll": dll,
     "manifest.json": listing / "manifest.json",
     "README.md": root / "README.md",

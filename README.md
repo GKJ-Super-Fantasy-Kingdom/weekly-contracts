@@ -36,3 +36,9 @@ python package.py
 ```
 
 The packager builds the Release DLL, opens the completed archive, compares every entry with its source, and decodes the 256 × 256 PNG. Output is `dist/WeeklyContracts-0.1.0.zip`. The ZIP contains only the plugin and its listing files.
+
+## Contributing and license
+
+Bug reports and pull requests are welcome. See the [contribution guide](CONTRIBUTING.md) for local testing and reporting instructions.
+
+The original mod code is available under the [MIT License](LICENSE). Super Fantasy Kingdom, its game assets, and third-party dependencies retain their respective licenses and ownership.
