@@ -26,6 +26,12 @@ internal static class Program
         passed++;
     }
 
+    private static bool Collect(Contract contract, string id, Func<string, bool> grant)
+    {
+        bool received = false;
+        return contract.Collect(id, id, () => received = grant(id), () => received, e => throw e);
+    }
+
     private static void Main()
     {
         var c = Offer();
@@ -60,12 +66,12 @@ internal static class Program
         c.Advance(7, false, true);
         Check(c.stage == Stage.Earned && !c.AtDawn(8) && c.rewards.SequenceEqual(Choices),
             "Paid reward persists across deadline, dawn and reload");
-        Check(!c.Collect("other", _ => true) && !c.Collect("two", _ => false) && c.stage == Stage.Earned,
+        Check(!Collect(c, "other", _ => true) && !Collect(c, "two", _ => false) && c.stage == Stage.Earned,
             "Invalid choice or failed grant preserves reward");
         int grants = 0;
-        Check(c.Collect("two", _ => ++grants == 1), "Successful grant");
+        Check(Collect(c, "two", _ => ++grants == 1), "Successful grant");
         c = Reload(c);
-        Check(!c.Collect("two", _ => ++grants == 1) && c.claimed == "two" && grants == 1,
+        Check(!Collect(c, "two", _ => ++grants == 1) && c.claimed == "two" && grants == 1,
             "Claimed reward survives reload without a second grant");
 
         c = Offer(21);
@@ -82,13 +88,16 @@ internal static class Program
             nestedPayment = c.Deliver(Choices, () => true);
             return true;
         });
-        c.Collect("one", _ =>
+        Collect(c, "one", _ =>
         {
-            nestedClaim = c.Collect("one", __ => true);
+            nestedClaim = Collect(c, "one", __ => true);
             return true;
         });
         Check(!nestedPayment && !nestedClaim && c.stage == Stage.Claimed,
             "Synchronous game callbacks cannot pay or claim twice");
+        Check(Offer(10).OfferMessage == "Choose one this morning. Deliver before nightfall on day 14.",
+            "Midweek picker distinguishes this morning from the delivery deadline");
+        CompatibilityChecks.Run(Check);
         Console.WriteLine($"{passed} contract checks passed.");
     }
 }

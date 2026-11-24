@@ -13,7 +13,7 @@
       <HintPath>$(ProfileDir)\BepInEx\core\%(Identity).dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp;UnityEngine;UnityEngine.CoreModule;UnityEngine.UI;UnityEngine.UIModule;UnityEngine.TextRenderingModule;UnityEngine.JSONSerializeModule;Unity.TextMeshPro;Unity.InputSystem">
+    <Reference Include="Assembly-CSharp;UnityEngine;UnityEngine.CoreModule;UnityEngine.UI;UnityEngine.UIModule;UnityEngine.TextRenderingModule;UnityEngine.JSONSerializeModule;Unity.TextMeshPro;Unity.InputSystem;Unity.Localization;Newtonsoft.Json">
       <HintPath>$(ManagedDir)\%(Identity).dll</HintPath>
       <Private>false</Private>
     </Reference>

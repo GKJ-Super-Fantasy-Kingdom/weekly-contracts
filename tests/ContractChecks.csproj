@@ -3,5 +3,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
-  <ItemGroup><Compile Include="../src/Contract.cs" Link="Contract.cs" /></ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="../src/Contract.cs;../src/OrderTerms.cs;../src/Kingdom.cs;../src/RewardPolicy.cs;../src/SaveHooks.cs" />
+  </ItemGroup>
 </Project>

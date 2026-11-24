@@ -20,6 +20,7 @@ subprocess.run(["dotnet", "build", str(project), "-c", "Release"], cwd=root, che
 dll = root / "bin/Release" / xml.findtext(".//TargetFramework") / "WeeklyContracts.dll"
 files = {
     "LICENSE": root / "LICENSE",
+    "CHANGELOG.md": root / "CHANGELOG.md",
     "plugins/WeeklyContracts.dll": dll,
     "manifest.json": listing / "manifest.json",
     "README.md": root / "README.md",

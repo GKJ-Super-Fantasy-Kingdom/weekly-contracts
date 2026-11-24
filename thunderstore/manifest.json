@@ -2,7 +2,7 @@
   "name": "WeeklyContracts",
   "version_number": "0.1.0",
   "website_url": "https://github.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts",
-  "description": "Take a dawn bread contract, deliver before boss night and choose a run relic from the kingdom calendar.",
+  "description": "Choose a weekly delivery at dawn and earn coins or a run relic before boss night.",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2305",
     "BepInEx-HideManagerGameObject_Config-5.4.2304"

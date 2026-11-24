@@ -42,10 +42,14 @@ try {
     if ('OnEnable' -notin $calendar.Methods.Name) { throw 'Missing calendar hook.' }
     $position = $game.MainModule.GetType('SuperFantasyKingdom.GameDataManager').Methods |
         Where-Object Name -eq 'PositionWorldBuildings'
-    $parse = @($position.Body.Instructions | Where-Object {
-        $_.Operand -like '*UnityEngine.JsonUtility::FromJson<SuperFantasyKingdom.GameData>(System.String)'
-    })
-    if ($parse.Count -ne 1) { throw 'Native save reader changed.' }
+    $manager = $game.MainModule.GetType('SuperFantasyKingdom.SaveManager')
+    $raw = @($manager.Methods | Where-Object { $_.Name -eq 'Load' -and !$_.HasGenericParameters -and
+        $_.ReturnType.FullName -eq 'System.String' })
+    $tavern = $game.MainModule.GetType('SuperFantasyKingdom.Tavern.TavernSaveManager')
+    $load = $tavern.Methods | Where-Object Name -eq 'Load'
+    if ($raw.Count -ne 1 -or $position.Body.Instructions.Operand -notcontains $raw[0] -or
+        !($load.Body.Instructions.Operand -match 'SaveManager::LoadGameData\(') -or
+        'm_GameData' -notin $position.DeclaringType.Fields.Name) { throw 'Native checkpoint hooks changed.' }
     "Verified packaged plugin $($assembly.Name.Version), $($refs.Count) runtime references, calendar hook and checkpoint hook."
 } finally {
     if ($game) { $game.Dispose() }
