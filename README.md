@@ -1,3 +1,5 @@
+# Weekly Contracts
+
 Choose an optional delivery at dawn and finish it before the weekly boss night. Supply jobs pay coins, while **Bread for the Watch** lets you deliver six bread for a choice of three run relics.
 
 ## Features
@@ -31,10 +33,13 @@ Captured in-game with Weekly Contracts 0.1.0 at 1.5× UI scale using simulated c
 
 ## Compatibility
 
-Weekly Contracts works on its own and was playtested with all ten GKJ mods. A second playtest included **ownlyme/BakeryUsesWheat 1.2.0**, **ownlyme/TavernFoodPriorities 1.7.0** and **ownlyme/MoreRelics 1.1.0** together. Deliveries use the kingdom’s resource equivalents and leave worker reservations and separate tavern meal inventory intact. Mods with a separate resource store or custom shop-only spending rules may need an integration.
-
-MoreRelics availability and boss-only restrictions apply to relic choices and upgrades. If all three choices become unavailable, you can leave the reward pending or select **Refund** to recover the six units you paid when that resource is available.
+- Weekly Contracts works on its own. In a ten-mod GKJ playtest, the contract button was reachable from [Visitor Calendar](https://thunderstore.io/c/super-fantasy-kingdom/p/GKJ/VisitorCalendar/) using the D-pad, with [Daybook](https://thunderstore.io/c/super-fantasy-kingdom/p/GKJ/Daybook/) and [Amaya Without Cooldown](https://thunderstore.io/c/super-fantasy-kingdom/p/GKJ/AmayaWithoutCooldown/) also enabled.
+- A second playtest included [BakeryUsesWheat 1.2.0](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/BakeryUsesWheat/), [TavernFoodPriorities 1.7.0](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/TavernFoodPriorities/) and [MoreRelics 1.1.0](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/MoreRelics/) together. The six-bread delivery charged once and awarded one relic. Relic availability and boss-only restrictions apply to both choices and upgrades.
+- Deliveries use your kingdom’s resource equivalents and leave worker reservations and separate tavern meal inventory intact. Mods that use a separate resource store or enforce spending rules only in the shop may need an integration.
+- If all three relic choices become unavailable, you can keep the reward pending or select **Refund** to recover the six units you paid once that resource is available.
 
 ## Installation
 
-Select **Install with Mod Manager** on this page and choose your Super Fantasy Kingdom profile. Enable **WeeklyContracts** and its listed dependencies, **BepInExPack 5.4.2305** and **HideManagerGameObject_Config 5.4.2304**, then launch the game modded.
+1. Select **Install with Mod Manager** on this page and choose your Super Fantasy Kingdom profile.
+2. Enable **WeeklyContracts** and its two listed dependencies, [BepInExPack 5.4.2305](https://thunderstore.io/c/super-fantasy-kingdom/p/BepInEx/BepInExPack/) and [HideManagerGameObject_Config 5.4.2304](https://thunderstore.io/c/super-fantasy-kingdom/p/BepInEx/HideManagerGameObject_Config/).
+3. Launch the game modded. At dawn, look for the contract board.
