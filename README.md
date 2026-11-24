@@ -1,67 +1,40 @@
-# Weekly Contracts
+Choose an optional delivery at dawn and finish it before the weekly boss night. Supply jobs pay coins, while **Bread for the Watch** lets you deliver six bread for a choice of three run relics.
 
-Choose an optional delivery at dawn and finish it before the weekly boss night. Supply jobs pay coins. **Bread for the Watch** asks for six bread and lets you pick one of three eligible run relics.
+## Features
 
-![Weekly Contracts picker showing Mend the Wall and Bread for the Watch](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.0/contract-picker.png)
+- Compare each offer’s delivery, difficulty, deadline and reward before accepting. Up to two coin-paying jobs rotate through supplies your kingdom can already spend.
+- Accept the bread contract even if your shelves are empty. You only pay when you confirm delivery, and missing the deadline costs nothing.
+- Keep an earned reward past boss night. Your contract and inventory follow the same kingdom checkpoint when you Continue.
 
-*At 1.5× UI scale on day 10, the board offers four stone for three coins or six bread for a relic choice. Both deliveries are due before nightfall on day 14.*
+## How to Use
 
-## Choose a contract
+1. At dawn, select an offer to read its terms. Use the **arrow keys** and **Enter**, or the **D-pad** and **bottom face button** (A on an Xbox controller). You can also click a row or button.
+2. Select **Accept** to take one job. **Later** lets you reopen the same offers from the calendar for the rest of that morning. **Decline…** asks for confirmation before closing the board for the week.
+3. Gather the requested amount before nightfall on the listed day (7, 14, 21 or 28). Open the calendar, select **Contract** beneath the day grid, then select **Deliver**. Review the balance and select **Confirm** to pay.
+4. Select **Collect Reward** for your coins or relic cards. For bread, use **Next Relic** to compare effects, then **Choose…** and **Collect** to take one. You can return through the calendar later for an earned reward.
 
-Select a row to review its terms. **Accept** takes one job at no cost. **Later** keeps the same choices available from the calendar for the rest of that morning. **Decline…** asks for confirmation before closing the week's board. An unanswered offer expires when morning ends.
+## Screenshots
 
-Up to two supply jobs appear from materials you can already spend. When all six supplies are stocked, the board rotates through all six in three weeks. Kingdom resource equivalents use their in-game names.
+Captured in-game with Weekly Contracts 0.1.0 at 1.5× UI scale using simulated controller input.
 
-| Delivery | Reward |
-| --- | --- |
-| 2 water | 1 coin |
-| 3 wood or 3 fish | 2 coins |
-| 4 stone or 4 wheat | 3 coins |
-| 5 boards | 5 coins |
-| 6 bread | Choose 1 of 3 eligible run relics |
+![The offer picker compares Mend the Wall with Bread for the Watch](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.0/contract-picker.png)
 
-![Bread for the Watch terms showing available stock, delivery, deadline and reward](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.0/bread-contract.png)
+*On day 10, four stone earns three coins. The six-bread offer on the next row has the same night-14 deadline.*
 
-*The bread contract can be accepted with zero bread in stock. The six bread are due at delivery.*
+![Bread for the Watch terms show zero bread available, six due and a relic choice](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.0/bread-contract.png)
 
-## Deliver and collect
+*The stock line shows why you can accept now and deliver later.*
 
-Open the calendar and select **Contract** beneath the day grid. **Deliver** previews your balance after payment. **Confirm** rechecks the available stock and charges once. Your deadline is nightfall on day 7, 14, 21 or 28. Missing it costs nothing. The cards support the game's controller navigation and confirm actions, keyboard navigation and mouse clicks.
+![The relic chooser shows Eagle Eye and its effect, with Choose and Next Relic buttons](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.0/relic-choice.png)
 
-**Collect Reward** pays the listed coins or opens the relic cards. Use **Next Relic** to read each effect, then **Choose…** and **Collect**. You can also leave the reward pending. It carries across the deadline and takes priority over the next week's offers.
-
-![Choose Your Relic card showing Eagle Eye, its effect and Next Relic](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.0/relic-choice.png)
-
-*Eagle Eye is the first of three recorded choices in this run. The final confirmation comes after Choose….*
-
-Contract state travels in the normal kingdom checkpoint. Continue restores that checkpoint's inventory, deadline and contract decisions together. If a reward provider fails, the contract checks the purse or relic inventory. A missing payout can be retried from the calendar. A completed transfer stays claimed.
+*Eagle Eye is the first of three choices in this run. Browse the others before collecting.*
 
 ## Compatibility
 
-The mod spends from the kingdom's designated store and leaves reserved packets and separate meal inventories alone. A recipe change is supported if the bakery still produces the kingdom's bread resource. A mod that keeps its own inventory or enforces spending restrictions exclusively in the shop's `SpendResource` replacement may need an integration.
+Weekly Contracts works on its own and was playtested with all ten GKJ mods. A second playtest included **ownlyme/BakeryUsesWheat 1.2.0**, **ownlyme/TavernFoodPriorities 1.7.0** and **ownlyme/MoreRelics 1.1.0** together. Deliveries use the kingdom’s resource equivalents and leave worker reservations and separate tavern meal inventory intact. Mods with a separate resource store or custom shop-only spending rules may need an integration.
 
-The reward cards keep their three original identifiers. If another reward changes a choice, you can select a remaining relic or an eligible native upgrade. If all three become unavailable, **Refund** returns the six units of the material you paid. If its definition is missing, the reward stays pending until that material or an eligible relic returns.
-
-The release build was playtested with all ten GKJ mods. A second isolated run added **ownlyme/BakeryUsesWheat 1.2.0**, **ownlyme/TavernFoodPriorities 1.7.0** and **ownlyme/MoreRelics 1.1.0** together. The bread delivery charged once and awarded one relic. With MoreRelics, the board honors availability and boss-chest-only restrictions, including on upgrades. The playtests used simulated gamepad input.
+MoreRelics availability and boss-only restrictions apply to relic choices and upgrades. If all three choices become unavailable, you can leave the reward pending or select **Refund** to recover the six units you paid when that resource is available.
 
 ## Installation
 
-Install **WeeklyContracts** for Super Fantasy Kingdom with a Thunderstore-compatible mod manager and enable the dependencies listed in the manifest. To use a local build, choose **Import local mod** in your profile settings and select `WeeklyContracts-0.1.0.zip`. Launch the game modded. BepInEx logs `Weekly Contracts ready.` when the plugin loads.
-
-## Build and verification
-
-Use the installed game's managed assemblies, a BepInEx 5 profile, .NET SDK 8+ and Python with Pillow. Set `GameDir` to your game installation and `ProfileDir` to your BepInEx profile when the project defaults differ from your machine.
-
-```powershell
-dotnet run --project tests/ContractChecks.csproj -c Release
-python package.py
-./tests/VerifyPackage.ps1 -GameDir $env:GameDir -ProfileDir $env:ProfileDir
-```
-
-Set both environment variables before using these commands, or omit the verifier arguments to use its defaults. The packager writes `dist/WeeklyContracts-0.1.0.zip`, checks every entry against its source and decodes the 256 × 256 icon.
-
-For a controller playtest, use a disposable kingdom. Navigate between rows, select **Later**, reopen from the calendar and accept one offer. Back out of delivery once to verify stock stays intact. Confirm the delivery, collect the reward and Continue after the next native save to check the settled balance. Check the cards at 1× and 1.5×.
-
-## Contributing and license
-
-See the [contribution guide](https://github.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/blob/main/CONTRIBUTING.md) for bug reports and changes. Original mod code is available under the [MIT License](https://github.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/blob/main/LICENSE). Super Fantasy Kingdom, its artwork and third-party dependencies retain their respective licenses and ownership.
+Select **Install with Mod Manager** on this page and choose your Super Fantasy Kingdom profile. Enable **WeeklyContracts** and its listed dependencies, **BepInExPack 5.4.2305** and **HideManagerGameObject_Config 5.4.2304**, then launch the game modded.
