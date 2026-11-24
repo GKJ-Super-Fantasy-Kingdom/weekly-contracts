@@ -13,11 +13,11 @@ Choose an optional delivery at dawn and finish it before the weekly boss night. 
 1. At dawn, select an offer to read its terms. Use the **arrow keys** and **Enter**, or the **D-pad** and **bottom face button** (A on an Xbox controller). You can also click a row or button.
 2. Select **Accept** to take one job. **Later** lets you reopen the same offers from the calendar for the rest of that morning. **Decline…** asks for confirmation before closing the board for the week.
 3. Gather the requested amount before nightfall on the listed day (7, 14, 21 or 28). Open the calendar, select **Contract** beneath the day grid, then select **Deliver**. Review the balance and select **Confirm** to pay.
-4. Select **Collect Reward** for your coins or relic cards. For bread, use **Next Relic** to compare effects, then **Choose…** and **Collect** to take one. You can return through the calendar later for an earned reward.
+4. Select **Collect Reward** for your coins or relic cards. For bread, compare the relic cards side by side. Click a card or move focus with the arrow keys or D-pad, confirm the card, then select **Collect**. You can return through the calendar later for an earned reward.
 
 ## Screenshots
 
-Captured in-game with Weekly Contracts 0.1.0 at 1.5× UI scale using simulated controller input.
+The contract picker and terms were captured in 0.1.0 at 1.5× UI scale. The two relic picker views show the same reward in 0.1.1. All captures used simulated controller input.
 
 ![The offer picker compares Mend the Wall with Bread for the Watch](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.0/contract-picker.png)
 
@@ -27,9 +27,17 @@ Captured in-game with Weekly Contracts 0.1.0 at 1.5× UI scale using simulated c
 
 *The stock line shows why you can accept now and deliver later.*
 
-![The relic chooser shows Eagle Eye and its effect, with Choose and Next Relic buttons](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.0/relic-choice.png)
+**1× UI Scale**
 
-*Eagle Eye is the first of three choices in this run. Browse the others before collecting.*
+![Choose Your Relic at 1×, with Fire Shield, Metal Mage and Eagle Eye side by side](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.1/relics-1x.png)
+
+*Compare all three effects before selecting a card. Later keeps the same choices available from the calendar.*
+
+**1.5× UI Scale**
+
+![Choose Your Relic at 1.5×, with the same three cards and larger effect text](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.1/relics-1.5x.png)
+
+*All three cards still fit in one row at the larger scale. Select a card to review it, then choose Collect to claim it.*
 
 ## Compatibility
 

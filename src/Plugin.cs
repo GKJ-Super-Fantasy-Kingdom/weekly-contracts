@@ -14,7 +14,7 @@ using UnityEngine.UI;
 
 namespace WeeklyContracts
 {
-    [BepInPlugin("sfk.weeklycontracts", "Weekly Contracts", "0.1.0")]
+    [BepInPlugin("sfk.weeklycontracts", "Weekly Contracts", "0.1.1")]
     [BepInDependency("ownly.morerelics", BepInDependency.DependencyFlags.SoftDependency)]
     public sealed class Plugin : BaseUnityPlugin
     {
@@ -24,7 +24,6 @@ namespace WeeklyContracts
         private UIOverlayMessage card;
         private bool announce;
         private float worldReadySince = -1f;
-        private int index;
         private bool waitForRelease;
 
         private void Awake()
@@ -156,7 +155,7 @@ namespace WeeklyContracts
                                 if (Kingdom.CollectCoins(Current, WarnReward)) Close();
                                 else RetryReward();
                             }
-                            else { index = 0; Reward(); }
+                            else Reward();
                         }, "Later", Close, heading: "Contract Reward", summary: Current.selected);
                     break;
                 default:
@@ -225,18 +224,58 @@ namespace WeeklyContracts
                     }, "Later", Close);
                 return;
             }
-            string id = Current.rewards[index];
-            var target = Kingdom.ClaimTarget(id);
-            bool available = target != null;
-            var relic = available || string.IsNullOrEmpty(id) ? target : AddressablesManager.Instance.GetRelic(id);
-            string title = relic != null ? relic.GetTitle() : id;
-            string detail = available ? relic.GetDescription() : "Currently unavailable.";
-            Page($"Relic {index + 1} of 3  •  {title}\n{detail}", available ? "Choose…" : null,
-                () => ConfirmReward(id, target, title, detail), "Next Relic", () =>
+            var origin = Current;
+            Close();
+            var overlays = OverlayManager.Instance;
+            var picker = overlays.GetMerchantScreen();
+            picker.Init("Choose Your Relic");
+            picker.SetText("Choose one relic as your contract reward.");
+            overlays.SetCanCloseOverlay(true);
+            var later = picker.SetCancel("Later").GetComponent<Button>();
+            var choices = new System.Collections.Generic.List<Button>();
+            int opened = Time.frameCount;
+            waitForRelease = SubmitHeld();
+            foreach (string id in origin.rewards)
+            {
+                var target = Kingdom.ClaimTarget(id);
+                var relic = target ?? (string.IsNullOrEmpty(id) ? null : AddressablesManager.Instance.GetRelic(id));
+                if (relic == null) continue;
+                var native = picker.AddRelic(relic, checkIfCanAdd: false, isInShop: false).GetComponent<UICardRelic>();
+                var button = native.GetCardButton();
+                // The stock chest click grants its own reward. Route activation through the paid contract instead.
+                button.onClick = new Button.ButtonClickedEvent();
+                button.enabled = true;
+                button.interactable = target != null;
+                if (!button.interactable)
                 {
-                    index = (index + 1) % Current.rewards.Length;
-                    Reward();
-                }, true, heading: "Choose Your Relic", art: relic != null ? relic.GetIcon() : null);
+                    native.GetCanvasGroup().alpha = .55f;
+                    continue;
+                }
+                choices.Add(button);
+                string title = relic.GetTitle();
+                string detail = relic.GetDescription();
+                button.onClick.AddListener(() =>
+                {
+                    if (!button.isActiveAndEnabled || !button.interactable || Current != origin ||
+                        Current.stage != Stage.Earned || Time.frameCount == opened || waitForRelease ||
+                        GameManager.Instance.IsUnloading()) return;
+                    Close();
+                    if (Kingdom.ClaimTarget(id) == target) ConfirmReward(id, target, title, detail);
+                    else Reward();
+                });
+            }
+            for (int i = 0; i < choices.Count; i++)
+            {
+                choices[i].navigation = new Navigation { mode = Navigation.Mode.Explicit,
+                    selectOnLeft = i > 0 ? choices[i - 1] : null,
+                    selectOnRight = i + 1 < choices.Count ? choices[i + 1] : null,
+                    selectOnDown = later };
+            }
+            var focus = choices.FirstOrDefault() ?? later;
+            Navigate(later, focus, null, null);
+            picker.Display();
+            GamepadManager.Instance.SetGameObjectToSelect(focus.gameObject, true);
+            EventSystem.current?.SetSelectedGameObject(focus.gameObject);
         }
 
         private void ConfirmReward(string id, Relic target, string title, string description)
@@ -265,7 +304,7 @@ namespace WeeklyContracts
         }
 
         private void Page(string message, string primary, Action accept, string secondary, Action other,
-            bool allowLater = false, OrderKind[] rows = null, string heading = null, OrderKind? summary = null,
+            OrderKind[] rows = null, string heading = null, OrderKind? summary = null,
             Sprite art = null)
         {
             if (card != null && card.gameObject.activeInHierarchy)
@@ -293,17 +332,6 @@ namespace WeeklyContracts
             if (primary != null) next.SetAccept(primary, () => Invoke(accept));
             else next.RemoveAccept();
             next.SetCancel(secondary, () => Invoke(other));
-            if (allowLater)
-            {
-                // OverlayMessage has a native vertical layout. Add a separate row for pointer Back.
-                var layout = next.GetComponent<VerticalLayoutGroup>();
-                layout.padding.bottom = layout.padding.top;
-                var later = Instantiate(no, next.transform);
-                later.GetComponentInChildren<TextMeshProUGUI>().text = "Later";
-                later.onClick = new Button.ButtonClickedEvent();
-                later.onClick.AddListener(() => Invoke(Close));
-                LinkButtons(primary != null ? yes : null, no, later);
-            }
             var focus = primary != null ? yes : no;
             if (summary.HasValue) ContractCards.Order(next, yes, summary.Value, Current.deadline, false);
             if (rows != null && rows.Length > 0)
@@ -329,20 +357,6 @@ namespace WeeklyContracts
         {
             button.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnUp = up,
                 selectOnDown = down, selectOnLeft = side, selectOnRight = side };
-        }
-
-        private static void LinkButtons(Button primary, Button secondary, Button later)
-        {
-            foreach (var current in new[] { primary, secondary, later })
-            {
-                if (current == null) continue;
-                var navigation = current.navigation;
-                navigation.mode = Navigation.Mode.Explicit;
-                var neighbor = current == primary ? secondary : primary;
-                navigation.selectOnLeft = navigation.selectOnRight = neighbor;
-                navigation.selectOnDown = navigation.selectOnUp = current == later ? primary ?? secondary : later;
-                current.navigation = navigation;
-            }
         }
 
         // The stock cycle caption lives inside a disabled image over the day grid.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Compare contract relic rewards side by side on the game's relic cards. Select a card to confirm, or choose Later to keep the offer.
+
 ## 0.1.0
 
 - Added optional weekly delivery contracts with coin payouts and a six-bread relic choice.
