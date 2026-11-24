@@ -19,7 +19,7 @@ namespace WeeklyContracts
             var menu = new List<OrderKind>();
             var materials = new HashSet<ResourceType>();
             var bread = Bread;
-            bool offerBread = Supported(bread) && Choices().Length == 3;
+            bool offerBread = Supported(bread) && HasRelicChoices();
             if (offerBread) materials.Add(bread.type);
             int rotation = (Math.Max(0, day - 1) / 7) * 2;
             for (int i = 0; i < supplies.Length && menu.Count < 2; ++i)
@@ -69,10 +69,24 @@ namespace WeeklyContracts
             return Math.Max(0, Math.Min(physical, resources.GetResourceAvailableAmount(food.type, false)));
         }
 
+        internal static bool CanSpend(ResourceData material, int quantity, int stock) =>
+            Supported(material) && stock >= quantity &&
+            ResourceManager.Instance.CanBeBuilt(new ResourceAmount(material.type, quantity));
+
+        internal static string Readiness(OrderTerms terms, ResourceData material, int stock, out bool ready)
+        {
+            ready = false;
+            if (!Supported(material)) return "Resource unavailable";
+            if (stock < terms.Quantity) return $"Need {terms.Quantity - stock} more ({stock} available)";
+            if (!CanSpend(material, terms.Quantity, stock)) return "Stock unavailable for delivery";
+            if (terms.Coins == 0 && !HasRelicChoices()) return "Three eligible relics needed";
+            ready = true;
+            return $"Ready now ({stock} available)";
+        }
+
         internal static bool Spend(ResourceData food, int quantity = Contract.Price)
         {
-            if (Stock(food) < quantity ||
-                !ResourceManager.Instance.CanBeBuilt(new ResourceAmount(food.type, quantity))) return false;
+            if (!CanSpend(food, quantity, Stock(food))) return false;
             var building = CityManager.Instance.GetBuilding(food.buildingToTakeFrom);
             if (building == null)
             {
@@ -168,11 +182,18 @@ namespace WeeklyContracts
 
         internal static bool CanClaim(string id) => ClaimTarget(id) != null;
 
-        internal static string[] Choices()
+        private static IEnumerable<string> EligibleChoices()
         {
             var upgrades = Upgrades();
-            var candidates = AddressablesManager.Instance.GetAllRelics().Keys.Where(id =>
-                !upgrades.Contains(id) && Eligible(id) && !RelicManager.Instance.HasRelic(id)).ToList();
+            return AddressablesManager.Instance.GetAllRelics().Keys.Where(id =>
+                !upgrades.Contains(id) && Eligible(id) && !RelicManager.Instance.HasRelic(id));
+        }
+
+        internal static bool HasRelicChoices() => EligibleChoices().Take(3).Count() == 3;
+
+        internal static string[] Choices()
+        {
+            var candidates = EligibleChoices().ToList();
             var random = new Random();
             for (int i = 0; i < Math.Min(3, candidates.Count); ++i)
             {

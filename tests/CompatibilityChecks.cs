@@ -151,7 +151,18 @@ internal static class CompatibilityChecks
         var competingSpend = Start();
         Define("one"); Define("two"); Define("three");
         Storage.GenerateResource(Food.type, 9);
+        var breadTerms = OrderTerms.Get(OrderKind.Bread);
+        check(Kingdom.Readiness(breadTerms, Food, 4, out bool ready) == "Need 2 more (4 available)" && !ready,
+            "Offer comparison explains a shortfall");
+        check(Kingdom.Readiness(breadTerms, Food, 9, out ready) == "Ready now (9 available)" && ready,
+            "Available bread and three eligible rewards enable delivery");
+        Relics.Unlocked.Remove("three");
+        check(Kingdom.Readiness(breadTerms, Food, 9, out ready) == "Three eligible relics needed" && !ready,
+            "Missing relic blocks the delivery action before confirmation");
+        Relics.Unlocked.Add("three");
         ResourceManager.Instance.AllowSpend = false;
+        check(Kingdom.Readiness(breadTerms, Food, 9, out ready) == "Stock unavailable for delivery" && !ready,
+            "A spending veto also disables the delivery action");
         check(!Deliver(competingSpend) && Kingdom.Stock(Food) == 9, "Native affordability veto leaves payment open");
         ResourceManager.Instance.AllowSpend = true;
         int notices = 0;
@@ -221,6 +232,74 @@ internal static class CompatibilityChecks
 
         CheckFailedPayouts(check);
         CheckOffersAndUpgrades(check);
+        CheckCalendarQuery(check);
+    }
+
+    private static void CheckCalendarQuery(Action<bool, string> check)
+    {
+        var c = Start();
+        var game = GameManager.Instance = new() { Loaded = true };
+        var data = GameDataManager.Instance = new() { RunId = c.run };
+        var clock = DaytimeManager.Instance = new() { Day = 10 };
+        Plugin.Current = c;
+        Plugin.Restored = null;
+        c.AtDawn(10);
+        c.offers = new[] { OrderKind.Stone };
+        var stone = new ResourceData { type = ResourceType.Alternate, DisplayName = "Basalt" };
+        RaceManager.Instance.Materials[ResourceType.Stone] = stone;
+        Storage.GenerateResource(stone.type, 4);
+
+        bool Hidden() => !CalendarApi.TryGetActiveDelivery(out var title, out var quantity, out var resource, out var day)
+            && title == null && resource == null && quantity == 0 && day == 0;
+        bool Visible() => CalendarApi.TryGetActiveDelivery(out var title, out var quantity, out var resource, out var day)
+            && title == "Mend the Wall" && quantity == 4 && resource == "Basalt" && day == 12;
+
+        check(Hidden(), "Unaccepted offer has no calendar deadline");
+        c.Accept(OrderKind.Stone);
+        // A non-weekly value detects any attempt to derive a date instead of reading the checkpoint.
+        c.deadline = 12;
+        string active = Save(c);
+        check(Visible() && Visible() && active == Save(c), "Repeated calendar reads return accepted terms and stored day without mutation");
+        data.RunId = "different kingdom";
+        check(Hidden(), "Foreign loaded run cannot leak a calendar entry");
+        data.RunId = c.run;
+        game.Unloading = true;
+        check(Hidden(), "Unloading kingdom has no calendar entry");
+        game.Unloading = false;
+        game.Loaded = false;
+        check(Hidden(), "Loading kingdom has no calendar entry");
+        game.Loaded = true;
+        clock.Day = 11; clock.Night = true;
+        check(Visible(), "An earlier night keeps the delivery active");
+        clock.Day = 12; clock.Night = false;
+        check(Visible(), "Deadline day remains visible until nightfall");
+        clock.Night = true;
+        check(Hidden() && c.stage == Stage.Active, "Deadline night is hidden before the event and the query leaves state untouched");
+        clock.Night = false; clock.Day = 13;
+        check(Hidden(), "A stale active record past its deadline is hidden");
+        c.Advance(13, true, false);
+        check(c.stage == Stage.Expired && Hidden(), "Expired delivery has no calendar entry");
+
+        clock.Day = 10;
+        c = Load(active);
+        check(Plugin.Current == null && Visible(), "Restoring an accepted checkpoint revives the marker before dawn promotion");
+        Plugin.Current = c; Plugin.Restored = null;
+        check(Kingdom.Deliver(c, stone) && Hidden(), "Successful payment removes the deadline before collection");
+        c = Load(Save(c));
+        check(Hidden(), "Restoring a paid checkpoint does not revive the marker");
+        check(Kingdom.CollectCoins(c, e => throw e) && Hidden(), "Claimed reward has no calendar entry");
+        c = Load(active);
+        check(Visible(), "Rolling back to the unpaid checkpoint restores the same delivery");
+        c.selected = (OrderKind)99;
+        check(Hidden(), "Unrecognized checkpoint job has no calendar entry");
+        c.selected = OrderKind.Bread;
+        c.stage = Stage.Declined;
+        check(Hidden(), "Declined delivery has no calendar entry");
+        c.stage = Stage.Refunded;
+        check(Hidden(), "Refunded delivery has no calendar entry");
+        SaveHooks.BeginRead();
+        check(Hidden(), "Starting another load clears the previous run from discovery");
+        SaveHooks.EndRead();
     }
 
     private static void CheckFailedPayouts(Action<bool, string> check)

@@ -52,11 +52,13 @@ namespace WeeklyContracts
             return true;
         }
 
+        internal bool IsPastDeadline(int day, bool night) => day > deadline || (day == deadline && night);
+
         internal void Advance(int day, bool morning, bool night)
         {
             if (stage == Stage.Offered && (day != offeredDay || !morning))
                 stage = Stage.Expired;
-            if (stage == Stage.Active && (day > deadline || (day == deadline && night)))
+            if (stage == Stage.Active && IsPastDeadline(day, night))
                 stage = Stage.Expired;
         }
 

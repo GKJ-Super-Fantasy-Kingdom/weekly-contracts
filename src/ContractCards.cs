@@ -3,6 +3,7 @@ using SuperFantasyKingdom.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace WeeklyContracts
@@ -95,7 +96,7 @@ namespace WeeklyContracts
             var material = Kingdom.Material(kind);
             var name = Kingdom.Supported(material) ? material.GetName() : terms.Slot.ToString();
             var width = Width;
-            var row = Block(terms.Title, page.transform, width, RowHeight);
+            var row = Block(terms.Title, page.transform, width, selectable ? RowHeight + 24f : RowHeight);
             row.SetSiblingIndex(native.transform.parent.GetSiblingIndex());
             var paper = row.gameObject.AddComponent<Image>();
             var original = (Image)native.targetGraphic;
@@ -116,7 +117,7 @@ namespace WeeklyContracts
             else paper.color = new Color32(255, 243, 213, 255);
             var font = native.transform.Find("Text").GetComponent<TextMeshProUGUI>();
             float half = width * .50f;
-            Label(Box("Job", row, 14, 4, half + 5, 32), font, terms.Title, 29);
+            Label(Box("Job", row, selectable ? 35 : 14, 4, half + (selectable ? -16 : 5), 32), font, terms.Title, 29);
             Label(Box("Deadline", row, half + 22, 4, half - 36, 32), font, $"{terms.Difficulty} / Night {deadline}", 24, true);
             Icon(Box("Delivery icon", row, 14, 39, 32, 32), material != null ? material.icon : null);
             Label(Box("Delivery", row, 54, 36, half - 62, 38), font, $"{terms.Quantity} {name}", 29);
@@ -124,7 +125,29 @@ namespace WeeklyContracts
             Icon(Box("Reward icon", row, half + 6, 39, 32, 32), RaceManager.Instance.GetResourceIcon(rewardType));
             Label(Box("Reward", row, half + 46, 36, half - 58, 38), font,
                 terms.Coins > 0 ? terms.Reward : "Pick 1 of 3 relics", 27);
+            if (selectable)
+            {
+                string status = Kingdom.Readiness(terms, material, Kingdom.Stock(material), out _);
+                Label(Box("Stock", row, 16, 72, width - 32, 28), font, status, 24);
+                var marker = Box("Focus arrow", row, 10, 4, 23, 32);
+                Label(marker, font, ">", 29);
+                button.gameObject.AddComponent<ContractFocus>().Bind(marker.gameObject);
+            }
             return button;
+        }
+
+        internal static void MarkFocusedRelic(Button button)
+        {
+            var rect = (RectTransform)button.transform;
+            var line = Box("Contract focus", rect, 0, 0, 0, 5);
+            line.anchorMin = new Vector2(0f, 0f);
+            line.anchorMax = new Vector2(1f, 0f);
+            line.offsetMin = new Vector2(7f, -7f);
+            line.offsetMax = new Vector2(-7f, -3f);
+            var image = line.gameObject.AddComponent<Image>();
+            image.color = new Color32(255, 209, 87, 255);
+            image.raycastTarget = false;
+            button.gameObject.AddComponent<ContractFocus>().Bind(line.gameObject);
         }
 
         internal static void RelicArt(UIOverlayMessage page, Sprite sprite)
@@ -134,5 +157,17 @@ namespace WeeklyContracts
             art.SetSiblingIndex(page.transform.Find("Message").GetSiblingIndex());
             Icon(art, sprite);
         }
+    }
+
+    internal sealed class ContractFocus : MonoBehaviour, ISelectHandler, IDeselectHandler
+    {
+        private GameObject marker;
+        internal void Bind(GameObject value)
+        {
+            marker = value;
+            marker.SetActive(EventSystem.current?.currentSelectedGameObject == gameObject);
+        }
+        public void OnSelect(BaseEventData _) => marker?.SetActive(true);
+        public void OnDeselect(BaseEventData _) => marker?.SetActive(false);
     }
 }

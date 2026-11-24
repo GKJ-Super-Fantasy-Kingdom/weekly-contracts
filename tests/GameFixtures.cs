@@ -24,6 +24,8 @@ namespace SuperFantasyKingdom
     internal sealed class ResourceData
     {
         public ResourceType type;
+        public string DisplayName;
+        public string GetName() => DisplayName ?? type.ToString();
         public BuildingType buildingToTakeFrom = BuildingType.Bakery;
     }
     internal record ResourceAmount(ResourceType type, int amount);
@@ -156,7 +158,28 @@ namespace SuperFantasyKingdom
     }
     internal sealed class GameData { public string runID; public string hash; }
     internal sealed class SaveManager { public void Save() { } public void LoadGameData() { } }
-    internal sealed class GameDataManager { public void PositionWorldBuildings() { } }
+    internal sealed class GameDataManager
+    {
+        public static GameDataManager Instance;
+        public string RunId;
+        public string GetRunID() => RunId;
+        public void PositionWorldBuildings() { }
+    }
+    internal sealed class GameManager
+    {
+        public static GameManager Instance;
+        public bool Loaded, Unloading;
+        public bool IsGameLoaded() => Loaded;
+        public bool IsUnloading() => Unloading;
+    }
+    internal sealed class DaytimeManager
+    {
+        public static DaytimeManager Instance;
+        public int Day;
+        public bool Night;
+        public int CurrentDay() => Day;
+        public bool IsNight() => Night;
+    }
 }
 namespace SuperFantasyKingdom.Tavern { internal sealed class TavernSaveManager { } }
 namespace MoreRelics

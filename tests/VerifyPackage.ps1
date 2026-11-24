@@ -28,12 +28,27 @@ try {
     $attr = @($plugin.CustomAttributes | Where-Object { $_.AttributeType.Name -eq 'BepInPlugin' })
     if ($attr.Count -ne 1 -or $attr[0].ConstructorArguments[0].Value -ne 'sfk.weeklycontracts' -or
         $attr[0].ConstructorArguments[2].Value -ne $manifest.version_number) { throw 'Invalid BepInEx metadata.' }
+    # Verify the actual strings compiled into the plugin, including native-font punctuation.
+    $ellipsis = [char]0x2026
+    $offerLabels = ($plugin.Methods | Where-Object Name -eq 'ShowOffers').Body.Instructions.Operand
+    $deliveryLabels = ($plugin.Methods | Where-Object Name -eq 'Show').Body.Instructions.Operand
+    if (("Decline" + $ellipsis) -notin $offerLabels -or ("Deliver {0}" + $ellipsis) -notin $deliveryLabels) {
+        throw 'Contract action labels have unexpected punctuation in the packaged DLL.'
+    }
     $refs = @($assembly.MainModule.GetMemberReferences() | Where-Object {
         $_.DeclaringType.Scope.Name -match '^(Assembly-CSharp|Unity|BepInEx|0Harmony)'
     })
     foreach ($ref in $refs) {
         if ($null -eq $ref.Resolve()) { throw "Unresolved packaged reference: $ref" }
     }
+    $api = $assembly.MainModule.GetType('WeeklyContracts.CalendarApi')
+    $query = @($api.Methods | Where-Object Name -eq 'TryGetActiveDelivery')
+    if (!$api.IsPublic -or $query.Count -ne 1 -or !$query[0].IsPublic -or !$query[0].IsStatic -or
+        $query[0].ReturnType.FullName -ne 'System.Boolean' -or
+        (($query[0].Parameters | ForEach-Object { $_.ParameterType.FullName }) -join ',') -ne
+            'System.String&,System.Int32&,System.String&,System.Int32&' -or
+        @($query[0].Parameters | Where-Object { !$_.IsOut }).Count -gt 0 -or
+        $assembly.MainModule.AssemblyReferences.Name -contains 'VisitorCalendar') { throw 'Calendar query contract changed.' }
     $game = [Mono.Cecil.AssemblyDefinition]::ReadAssembly((Join-Path $managed 'Assembly-CSharp.dll'), $reader)
     $calendar = $game.MainModule.GetType('SuperFantasyKingdom.UI.UICalendar')
     foreach ($name in 'textCycle','firstDay') {
@@ -50,7 +65,7 @@ try {
     if ($raw.Count -ne 1 -or $position.Body.Instructions.Operand -notcontains $raw[0] -or
         !($load.Body.Instructions.Operand -match 'SaveManager::LoadGameData\(') -or
         'm_GameData' -notin $position.DeclaringType.Fields.Name) { throw 'Native checkpoint hooks changed.' }
-    "Verified packaged plugin $($assembly.Name.Version), $($refs.Count) runtime references, calendar hook and checkpoint hook."
+    "Verified packaged plugin $($assembly.Name.Version), $($refs.Count) runtime references, optional calendar query, calendar hook and checkpoint hook."
 } finally {
     if ($game) { $game.Dispose() }
     if ($assembly) { $assembly.Dispose() }

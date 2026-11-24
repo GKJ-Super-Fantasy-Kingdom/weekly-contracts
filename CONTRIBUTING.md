@@ -18,6 +18,8 @@ Examples include `feat(ui): show controller prompts`, `fix(save): restore the cu
 
 Accepted types are `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. Use the same format for pull request titles so GitHub can use the title as the merge or squash commit subject.
 
+The optional [calendar query and binding sample](docs/visitor-calendar-api.md) describe how companion mods can read an accepted delivery and its deadline.
+
 ## Build and Verification
 
 Use the installed game's managed assemblies, a BepInEx 5 profile, .NET SDK 8+ and Python with Pillow. Set `GameDir` to your game installation and `ProfileDir` to your BepInEx profile when the project defaults differ from your machine.
@@ -28,6 +30,6 @@ python package.py
 ./tests/VerifyPackage.ps1 -GameDir $env:GameDir -ProfileDir $env:ProfileDir
 ```
 
-Set both environment variables before using these commands, or omit the verifier arguments to use its defaults. The packager writes `dist/WeeklyContracts-0.1.1.zip`, checks every entry against its source and decodes the 256 × 256 icon.
+Set both environment variables before using these commands, or omit the verifier arguments to use its defaults. The packager writes `dist/WeeklyContracts-0.1.2.zip`, checks every entry against its source and decodes the 256 × 256 icon.
 
 For a controller playtest, use a disposable kingdom. Navigate between rows, select **Later**, reopen from the calendar and accept one offer. Back out of delivery once to verify stock stays intact. Confirm the delivery, collect the reward and Continue after the next native save to check the settled balance. For the bread reward, verify that all three saved relics fit side by side at 1× and 1.5×. Navigate to the middle and right cards, open a confirmation and go back, then use Later and reopen the same choices. Collect one relic and verify that the reward settles once.

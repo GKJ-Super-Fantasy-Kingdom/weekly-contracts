@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2
+
+- Compare each offer's available stock and shortfall before accepting. Delivery also checks the game's spending rules and eligible relic pool before showing its confirmation action.
+- A focus arrow identifies the current contract and an underline identifies the current relic. The reward cards leave room for the native keyword tooltip at 1.5×. Back from terms or relic confirmation returns to the choice you were inspecting.
+- Added a read-only query for companion mods to find the accepted delivery and the day it expires in the loaded kingdom.
+
 ## 0.1.1
 
 - Compare contract relic rewards side by side on the game's relic cards. Select a card to confirm, or choose Later to keep the offer.

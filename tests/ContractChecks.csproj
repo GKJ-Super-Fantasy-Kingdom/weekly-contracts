@@ -5,6 +5,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <Compile Include="../src/Contract.cs;../src/OrderTerms.cs;../src/Kingdom.cs;../src/RewardPolicy.cs;../src/SaveHooks.cs" />
+    <Compile Include="../src/CalendarApi.cs;../src/Contract.cs;../src/OrderTerms.cs;../src/Kingdom.cs;../src/RewardPolicy.cs;../src/SaveHooks.cs" />
   </ItemGroup>
 </Project>

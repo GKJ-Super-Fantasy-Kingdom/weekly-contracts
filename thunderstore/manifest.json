@@ -1,6 +1,6 @@
 {
   "name": "WeeklyContracts",
-  "version_number": "0.1.1",
+  "version_number": "0.1.2",
   "website_url": "https://github.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts",
   "description": "Choose a weekly delivery at dawn and earn coins or a run relic before boss night.",
   "dependencies": [

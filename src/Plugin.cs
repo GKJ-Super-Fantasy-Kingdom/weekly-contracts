@@ -14,7 +14,7 @@ using UnityEngine.UI;
 
 namespace WeeklyContracts
 {
-    [BepInPlugin("sfk.weeklycontracts", "Weekly Contracts", "0.1.1")]
+    [BepInPlugin("sfk.weeklycontracts", "Weekly Contracts", "0.1.2")]
     [BepInDependency("ownly.morerelics", BepInDependency.DependencyFlags.SoftDependency)]
     public sealed class Plugin : BaseUnityPlugin
     {
@@ -25,6 +25,7 @@ namespace WeeklyContracts
         private bool announce;
         private float worldReadySince = -1f;
         private bool waitForRelease;
+        private bool backToParent;
 
         private void Awake()
         {
@@ -38,6 +39,7 @@ namespace WeeklyContracts
             harmony.PatchAll(typeof(SaveHooks.TavernData));
             harmony.PatchAll(typeof(SaveHooks.Save));
             harmony.PatchAll(typeof(CalendarLink));
+            harmony.PatchAll(typeof(ContractBack));
             GameManager.OnGameInit += ResetRun;
             DaytimeManager.OnMorningStart += Dawn;
             DaytimeManager.OnDayStart += Day;
@@ -133,21 +135,20 @@ namespace WeeklyContracts
             Refresh();
             var order = Current.Terms;
             var food = Kingdom.Material(Current.selected);
-            string name = Kingdom.Supported(food) ? food.GetName() : order.Slot.ToString();
             switch (Current.stage)
             {
                 case Stage.Offered:
-                    Page(Current.OfferMessage,
-                        "Later", Close, "Decline…", Decline, rows: Current.offers, heading: "Weekly Contracts");
+                    ShowOffers();
                     break;
                 case Stage.Active:
                     int count = Kingdom.Stock(food);
-                    Page($"{count} unreserved {name} available.",
-                        count >= order.Quantity ? $"Deliver {order.Quantity}…" : null, ReviewDelivery, "Back", Close,
+                    var readiness = Kingdom.Readiness(order, food, count, out bool ready);
+                    Page($"{readiness}. Deliver before nightfall on day {Current.deadline}.",
+                        ready ? $"Deliver {order.Quantity}…" : null, ReviewDelivery, "Back", Close,
                         heading: "Accepted Contract", summary: Current.selected);
                     break;
                 case Stage.Earned:
-                    Page("Delivery complete. Your reward is ready.",
+                    Page(order.Coins > 0 ? $"Delivery complete. Collect {order.Reward}." : "Delivery complete. Open your relic reward.",
                         "Collect Reward", () =>
                         {
                             if (order.Coins > 0)
@@ -156,13 +157,20 @@ namespace WeeklyContracts
                                 else RetryReward();
                             }
                             else Reward();
-                        }, "Later", Close, heading: "Contract Reward", summary: Current.selected);
+                        }, "Later", Close, heading: "Contract Reward");
                     break;
                 default:
-                    Page(Current.stage == Stage.Claimed ? "Relic already collected." : "This contract is closed.",
+                    Page(Current.stage == Stage.Claimed ? "Reward already collected." : "This contract is closed.",
                         null, null, "Back", Close);
                     break;
             }
+        }
+
+        private void ShowOffers(OrderKind? focus = null)
+        {
+            if (Current.stage != Stage.Offered) { Show(); return; }
+            Page(Current.OfferMessage, "Later", Close, "Decline…", Decline, rows: Current.offers,
+                heading: "Weekly Contracts", preferredOffer: focus);
         }
 
         private void ReviewOffer(OrderKind kind)
@@ -172,14 +180,14 @@ namespace WeeklyContracts
             var food = Kingdom.Material(kind);
             var name = Kingdom.Supported(food) ? food.GetName() : order.Slot.ToString();
             Page($"{Kingdom.Stock(food)} {name} available. Accepting costs nothing.",
-                "Accept", () => { if (Current.Accept(kind)) Close(); else Show(); }, "Back", Show,
-                heading: "Contract Terms", summary: kind);
+                "Accept", () => { if (Current.Accept(kind)) Close(); else Show(); }, "Back", () => ShowOffers(kind),
+                heading: "Contract Terms", summary: kind, nested: true);
         }
 
         private void Decline()
         {
             Page("Decline all contracts for this week? Your stock stays the same.",
-                "Decline", () => { Current.Decide(false); Close(); }, "Keep Offer", Show);
+                "Decline", () => { Current.Decide(false); Close(); }, "Keep Offer", Show, nested: true);
         }
 
         private void ReviewDelivery()
@@ -203,10 +211,10 @@ namespace WeeklyContracts
                     else Page($"Delivery unavailable. You need {cost} spendable {currentFood.GetName()}" +
                         (order.Coins == 0 ? " and three eligible relics." : "."),
                         null, null, "Back", Show);
-                }, "Back", Show, heading: "Confirm Delivery", summary: Current.selected);
+                }, "Back", Show, heading: "Confirm Delivery", summary: Current.selected, nested: true);
         }
 
-        private void Reward()
+        private void Reward(string preferred = null)
         {
             if (Current.stage != Stage.Earned) { Show(); return; }
             if (Current.rewards == null || !Current.rewards.Any(Kingdom.CanClaim))
@@ -233,14 +241,21 @@ namespace WeeklyContracts
             overlays.SetCanCloseOverlay(true);
             var later = picker.SetCancel("Later").GetComponent<Button>();
             var choices = new System.Collections.Generic.List<Button>();
+            Button preferredButton = null;
             int opened = Time.frameCount;
             waitForRelease = SubmitHeld();
+            int column = 0;
             foreach (string id in origin.rewards)
             {
                 var target = Kingdom.ClaimTarget(id);
                 var relic = target ?? (string.IsNullOrEmpty(id) ? null : AddressablesManager.Instance.GetRelic(id));
                 if (relic == null) continue;
                 var native = picker.AddRelic(relic, checkIfCanAdd: false, isInShop: false).GetComponent<UICardRelic>();
+                // The native keyword panel opens on the right. Keep the three card faces
+                // clear of it without moving the shared merchant viewport or tooltip.
+                foreach (RectTransform face in native.transform)
+                    face.anchoredPosition += Vector2.left * (12f * column);
+                column++;
                 var button = native.GetCardButton();
                 // The stock chest click grants its own reward. Route activation through the paid contract instead.
                 button.onClick = new Button.ButtonClickedEvent();
@@ -252,6 +267,8 @@ namespace WeeklyContracts
                     continue;
                 }
                 choices.Add(button);
+                ContractCards.MarkFocusedRelic(button);
+                if (id == preferred) preferredButton = button;
                 string title = relic.GetTitle();
                 string detail = relic.GetDescription();
                 button.onClick.AddListener(() =>
@@ -271,7 +288,7 @@ namespace WeeklyContracts
                     selectOnRight = i + 1 < choices.Count ? choices[i + 1] : null,
                     selectOnDown = later };
             }
-            var focus = choices.FirstOrDefault() ?? later;
+            var focus = preferredButton ?? choices.FirstOrDefault() ?? later;
             Navigate(later, focus, null, null);
             picker.Display();
             GamepadManager.Instance.SetGameObjectToSelect(focus.gameObject, true);
@@ -289,7 +306,7 @@ namespace WeeklyContracts
                     else RetryReward();
                 }
                 else Reward();
-            }, "Back", Reward, heading: "Collect Relic", art: target.GetIcon());
+            }, "Back", () => Reward(id), heading: "Collect Relic", art: target.GetIcon(), nested: true);
         }
 
         private void WarnReward(Exception error) => Logger.LogWarning($"Contract reward provider: {error.GetBaseException().Message}");
@@ -305,12 +322,13 @@ namespace WeeklyContracts
 
         private void Page(string message, string primary, Action accept, string secondary, Action other,
             OrderKind[] rows = null, string heading = null, OrderKind? summary = null,
-            Sprite art = null)
+            Sprite art = null, OrderKind? preferredOffer = null, bool nested = false)
         {
             if (card != null && card.gameObject.activeInHierarchy)
                 card.gameObject.SetActive(false);
             var next = OverlayManager.Instance.OverlayMessage(true);
             card = next;
+            backToParent = nested;
             int opened = Time.frameCount;
             var origin = Current;
             waitForRelease = SubmitHeld();
@@ -347,10 +365,25 @@ namespace WeeklyContracts
                     Navigate(choices[i], i == 0 ? yes : choices[i-1], i+1 == choices.Length ? yes : choices[i+1], null);
                 Navigate(yes, choices[choices.Length-1], choices[0], no);
                 Navigate(no, choices[choices.Length-1], choices[0], yes);
-                focus = choices[0];
+                int index = preferredOffer.HasValue ? Array.IndexOf(rows, preferredOffer.Value) : -1;
+                focus = choices[index >= 0 ? index : 0];
             }
             GamepadManager.Instance.SetGameObjectToSelect(focus.gameObject, true);
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(focus.gameObject);
+        }
+
+        [HarmonyPatch(typeof(OverlayManager), nameof(OverlayManager.Cancel))]
+        private static class ContractBack
+        {
+            private static bool Prefix(UIRelicDetails ___relicDetails, UIRename ___rename)
+            {
+                var owner = Instance;
+                if (owner == null || !owner.backToParent || owner.card == null ||
+                    !owner.card.gameObject.activeInHierarchy || ___relicDetails.IsActive() || ___rename.IsActive())
+                    return true;
+                owner.card.TriggerCancel();
+                return false;
+            }
         }
 
         private static void Navigate(Button button, Button up, Button down, Button side)
