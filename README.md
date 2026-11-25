@@ -51,3 +51,7 @@ Captured in Weekly Contracts 0.1.2 on Super Fantasy Kingdom 0.8.068 at 1920 × 1
 1. Select **Install with Mod Manager** on this page and choose your Super Fantasy Kingdom profile.
 2. Enable **WeeklyContracts** and its two listed dependencies, [BepInExPack 5.4.2305](https://thunderstore.io/c/super-fantasy-kingdom/p/BepInEx/BepInExPack/) and [HideManagerGameObject_Config 5.4.2304](https://thunderstore.io/c/super-fantasy-kingdom/p/BepInEx/HideManagerGameObject_Config/).
 3. Launch the game modded. At dawn, look for the contract board.
+
+## Support
+
+[Support GKJ Games on Ko-fi](https://ko-fi.com/gkj_games)
