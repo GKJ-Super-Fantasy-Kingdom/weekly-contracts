@@ -17,8 +17,6 @@ Choose an optional delivery at dawn and finish it before the weekly boss night. 
 
 ## Screenshots
 
-Captured in Weekly Contracts 0.1.2 on Super Fantasy Kingdom 0.8.068 at 1920 × 1080 using a virtual controller.
-
 ![Two offers show their stock, cost, deadline and reward with Bread for the Watch focused](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/main/docs/screenshots/0.1.2/choose-offers-1x.png)
 
 *1× UI scale. Sixteen stone makes Mend the Wall ready to deliver. The bread contract still needs six bread.*
@@ -41,10 +39,12 @@ Captured in Weekly Contracts 0.1.2 on Super Fantasy Kingdom 0.8.068 at 1920 × 1
 
 ## Compatibility
 
-- Weekly Contracts works on its own. With [Visitor Calendar 0.1.1 or later](https://thunderstore.io/c/super-fantasy-kingdom/p/GKJ/VisitorCalendar/), an accepted delivery appears on its deadline day. The marker clears when you pay, even if you collect the reward later. Both UI scales were tested with [Daybook](https://thunderstore.io/c/super-fantasy-kingdom/p/GKJ/Daybook/) and [Amaya Without Cooldown](https://thunderstore.io/c/super-fantasy-kingdom/p/GKJ/AmayaWithoutCooldown/) loaded.
-- An earlier compatibility playtest included [BakeryUsesWheat 1.2.0](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/BakeryUsesWheat/), [TavernFoodPriorities 1.7.0](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/TavernFoodPriorities/) and [MoreRelics 1.1.0](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/MoreRelics/) together. The six-bread delivery charged once and awarded one relic. Relic availability and boss-only restrictions apply to both choices and upgrades.
-- Deliveries use your kingdom’s resource equivalents and leave worker reservations and separate tavern meal inventory intact. Mods that use a separate resource store or enforce spending rules only in the shop may need an integration.
-- If all three relic choices become unavailable, you can keep the reward pending or select **Refund** to recover the six units you paid once that resource is available.
+- Works with Super Fantasy Kingdom **0.8.068** and the other [GKJ mods](https://thunderstore.io/c/super-fantasy-kingdom/p/GKJ/).
+- [Visitor Calendar](https://thunderstore.io/c/super-fantasy-kingdom/p/GKJ/VisitorCalendar/) 0.1.1 or later can show an accepted order on its deadline. The entry clears on delivery, and the reward can still be collected later.
+- Deliveries use your kingdom’s matching resources and keep worker reservations and the tavern’s separate meal stock intact. This works with the recipe changes in [Bakery Uses Wheat](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/BakeryUsesWheat/) and the meal priorities in [Tavern Food Priorities](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/TavernFoodPriorities/).
+- Eligible relics from [More Relics](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/MoreRelics/) and [Cursed Relics](https://thunderstore.io/c/super-fantasy-kingdom/p/GKJ/CursedRelics/) can appear in rewards. Availability and boss-only rules still apply. If all three options become unavailable, you can keep the reward pending or request a refund when the resource is available.
+- Mods that introduce a separate resource store or enforce spending only in their own shops may need separate support.
+- These community mods can share the same profile. [Achievement Enabler](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/AchievementEnabler/), [Bakery Uses Wheat](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/BakeryUsesWheat/), [More Relics](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/MoreRelics/), [Right Click Skip](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/RightClickSkip/), and [Tavern Food Priorities](https://thunderstore.io/c/super-fantasy-kingdom/p/ownlyme/TavernFoodPriorities/).
 
 ## Installation
 

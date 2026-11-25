@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+Clarify the mod’s description and compatibility for players.
+
 ## 0.1.2
 
 - Compare each offer's available stock and shortfall before accepting. Delivery also checks the game's spending rules and eligible relic pool before showing its confirmation action.

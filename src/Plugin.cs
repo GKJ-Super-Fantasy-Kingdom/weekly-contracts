@@ -14,7 +14,7 @@ using UnityEngine.UI;
 
 namespace WeeklyContracts
 {
-    [BepInPlugin("sfk.weeklycontracts", "Weekly Contracts", "0.1.2")]
+    [BepInPlugin("sfk.weeklycontracts", "Weekly Contracts", "0.1.3")]
     [BepInDependency("ownly.morerelics", BepInDependency.DependencyFlags.SoftDependency)]
     public sealed class Plugin : BaseUnityPlugin
     {
