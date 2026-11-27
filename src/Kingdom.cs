@@ -73,15 +73,19 @@ namespace WeeklyContracts
             Supported(material) && stock >= quantity &&
             ResourceManager.Instance.CanBeBuilt(new ResourceAmount(material.type, quantity));
 
-        internal static string Readiness(OrderTerms terms, ResourceData material, int stock, out bool ready)
+        internal static string Readiness(OrderTerms terms, ResourceData material, int stock, out bool ready, bool showStock = true)
         {
             ready = false;
             if (!Supported(material)) return "Resource unavailable";
-            if (stock < terms.Quantity) return $"Need {terms.Quantity - stock} more ({stock} available)";
+            if (stock < terms.Quantity)
+            {
+                string shortfall = $"Need {terms.Quantity - stock} more";
+                return showStock ? $"{shortfall} ({stock} available)" : shortfall;
+            }
             if (!CanSpend(material, terms.Quantity, stock)) return "Stock unavailable for delivery";
             if (terms.Coins == 0 && !HasRelicChoices()) return "Three eligible relics needed";
             ready = true;
-            return $"Ready now ({stock} available)";
+            return showStock ? $"Ready now ({stock} available)" : "Ready to deliver";
         }
 
         internal static bool Spend(ResourceData food, int quantity = Contract.Price)

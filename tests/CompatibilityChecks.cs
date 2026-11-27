@@ -38,6 +38,11 @@ internal static class CompatibilityChecks
     private static bool Collect(Contract contract, string id) =>
         Kingdom.CollectRelic(contract, id, Kingdom.ClaimTarget(id), e => throw e);
 
+    private sealed class LegacySaveManager
+    {
+        public void Save(string file, string json) { }
+    }
+
     private static string Save(Contract c)
     {
         Plugin.Current = c;
@@ -68,6 +73,13 @@ internal static class CompatibilityChecks
 
     internal static void Run(Action<bool,string> check)
     {
+        var signature = new[] { typeof(string), typeof(string) };
+        check(SaveHooks.Save.ResolveTarget(typeof(SaveManager)) ==
+                typeof(SaveManager).GetMethod("Save", signature.Append(typeof(bool)).ToArray()),
+            "Select the single native 0.8.070 save hook when both signatures exist");
+        check(SaveHooks.Save.ResolveTarget(typeof(LegacySaveManager)) ==
+                typeof(LegacySaveManager).GetMethod("Save", signature),
+            "Fall back to the archived 0.8.069 save hook");
         foreach (bool external in new[] { false, true })
         {
             var c = Start();
@@ -148,11 +160,20 @@ internal static class CompatibilityChecks
         check(!paid.Refund(Kingdom.CanClaim, () => true) && !Collect(paid, "A") &&
             Relics.Owned.Count == 0 && Kingdom.Stock(Food) == 8, "Refund checkpoint closes both settlement paths");
 
+        Start();
+        Storage.GenerateResource(Food.type, 4);
+        var breadTerms = OrderTerms.Get(OrderKind.Bread);
+        int shortStock = Kingdom.Stock(Food);
+        check(Kingdom.Readiness(breadTerms, Food, shortStock, out bool ready, showStock: false) == "Need 2 more" && !ready,
+            "Chooser can show the shortfall alongside its separate stock progress");
+        var shortOffer = new Contract { stage = Stage.Offered, offers = new[] { OrderKind.Bread } };
+        check(shortOffer.Accept(OrderKind.Bread) && shortOffer.stage == Stage.Active && Kingdom.Stock(Food) == 4,
+            "A listed contract can be accepted without spending the stock or covering the shortfall");
+
         var competingSpend = Start();
         Define("one"); Define("two"); Define("three");
         Storage.GenerateResource(Food.type, 9);
-        var breadTerms = OrderTerms.Get(OrderKind.Bread);
-        check(Kingdom.Readiness(breadTerms, Food, 4, out bool ready) == "Need 2 more (4 available)" && !ready,
+        check(Kingdom.Readiness(breadTerms, Food, 4, out ready) == "Need 2 more (4 available)" && !ready,
             "Offer comparison explains a shortfall");
         check(Kingdom.Readiness(breadTerms, Food, 9, out ready) == "Ready now (9 available)" && ready,
             "Available bread and three eligible rewards enable delivery");

@@ -92,9 +92,17 @@ namespace WeeklyContracts
             private static void Postfix(string __0, string __result) => Observe(__0, __result);
         }
 
-        [HarmonyPatch(typeof(SaveManager), nameof(SaveManager.Save), typeof(string), typeof(string))]
+        [HarmonyPatch]
         internal static class Save
         {
+            private static MethodBase TargetMethod() => ResolveTarget(typeof(SaveManager));
+
+            // Both 0.8.070 writers use this overload. doBackUp controls file rotation,
+            // so the same checkpoint payload is needed for either value.
+            internal static MethodInfo ResolveTarget(Type manager) =>
+                AccessTools.DeclaredMethod(manager, nameof(SaveManager.Save), new[] { typeof(string), typeof(string), typeof(bool) }) ??
+                AccessTools.DeclaredMethod(manager, nameof(SaveManager.Save), new[] { typeof(string), typeof(string) });
+
             internal static void Prefix(string __0, ref string __1)
             {
                 var contract = Plugin.Current ?? Plugin.Restored;

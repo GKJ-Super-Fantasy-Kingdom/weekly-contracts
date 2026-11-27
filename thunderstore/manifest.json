@@ -1,6 +1,6 @@
 {
   "name": "WeeklyContracts",
-  "version_number": "0.1.3",
+  "version_number": "0.1.4",
   "website_url": "https://github.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts",
   "description": "Choose a weekly supply contract and deliver before boss night to earn coins or a choice of three eligible relics.",
   "dependencies": [

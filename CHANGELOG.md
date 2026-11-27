@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.4
+
+- Compare weekly offers side by side. Each card shows its resource artwork, delivery cost, deadline, reward and stock. Hover or move controller focus to outline a card.
+- Seven contract illustrations frame the native resource icons. Undead contracts use their own resources and a muted palette.
+- Clicks between cards and around the footer keep the chooser or relic picker open. **Later** and **Back** use native outlined button states and restore the previous focus when returning.
+- Native Save and fresh Continue on game build 0.8.070 preserve accepted contracts, paid deliveries and pending rewards. The 0.8.069 save hook remains supported.
+
 ## 0.1.3
 
 Clarify the mod’s description and compatibility for players.

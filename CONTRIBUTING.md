@@ -30,6 +30,8 @@ python package.py
 ./tests/VerifyPackage.ps1 -GameDir $env:GameDir -ProfileDir $env:ProfileDir
 ```
 
-Set both environment variables before using these commands, or omit the verifier arguments to use its defaults. The packager writes `dist/WeeklyContracts-0.1.2.zip`, checks every entry against its source and decodes the 256 × 256 icon.
+Set both environment variables before using these commands, or omit the verifier arguments to use its defaults. The packager uses the manifest version for the ZIP name in `dist/`, checks every entry against its source and decodes the 256 × 256 icon.
 
-For a controller playtest, use a disposable kingdom. Navigate between rows, select **Later**, reopen from the calendar and accept one offer. Back out of delivery once to verify stock stays intact. Confirm the delivery, collect the reward and Continue after the next native save to check the settled balance. For the bread reward, verify that all three saved relics fit side by side at 1× and 1.5×. Navigate to the middle and right cards, open a confirmation and go back, then use Later and reopen the same choices. Collect one relic and verify that the reward settles once.
+For a controller playtest, use a disposable kingdom. Move left and right between cards, open terms and use Back to return to the same card. Move down to **Later** or **Decline…** and up to return to that card. Select **Later**, reopen from the calendar and accept an offer with a stock shortfall. Back out of delivery once to verify stock stays intact. Confirm the delivery, collect the reward and Continue after the next native save to check the settled balance. For the bread reward, verify that all three saved relics fit side by side at 1× and 1.5×. Navigate to the middle and right cards, open a confirmation and go back, then use Later and reopen the same choices. Collect one relic and verify that the reward settles once.
+
+The offer cards embed the copper frame from Hold the Line's `src/Art/CoinFrame.png` (GKJ-Super-Fantasy-Kingdom contributors, MIT).

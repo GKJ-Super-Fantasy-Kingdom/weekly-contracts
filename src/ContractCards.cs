@@ -1,3 +1,4 @@
+using HarmonyLib;
 using SuperFantasyKingdom;
 using SuperFantasyKingdom.UI;
 using TMPro;
@@ -12,6 +13,8 @@ namespace WeeklyContracts
     {
         private const float RowHeight = 82f;
         private static readonly Color Ink = new Color32(39, 26, 30, 255);
+        private static readonly System.Reflection.FieldInfo RelicHover = AccessTools.Field(typeof(UICardRelic), "spriteCardHighlight");
+        private static readonly System.Reflection.FieldInfo RelicSelected = AccessTools.Field(typeof(UICardRelic), "spriteCardSelected");
 
         private static float Width => Mathf.Clamp(Screen.width / SettingsManager.Instance.GetUIScaling() - 80f, 340f, 510f);
 
@@ -21,6 +24,7 @@ namespace WeeklyContracts
             var width = Width;
             body.GetComponent<LayoutElement>().preferredWidth = width;
             body.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+            body.enableWordWrapping = true;
             var layout = page.GetComponent<VerticalLayoutGroup>();
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.spacing = 6f;
@@ -44,7 +48,50 @@ namespace WeeklyContracts
             foreach (var graphic in banner.GetComponentsInChildren<Graphic>()) graphic.raycastTarget = false;
         }
 
-        private static RectTransform Block(string name, Transform parent, float width, float height)
+        internal static void Footer(Button primary, Button secondary, bool dismissPrimary, bool dismissSecondary)
+        {
+            var buttons = primary.transform.parent;
+            var layout = buttons.GetComponent<HorizontalLayoutGroup>() ?? buttons.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlWidth = layout.childControlHeight = false;
+            layout.childForceExpandWidth = layout.childForceExpandHeight = false;
+            layout.spacing = 16f;
+            primary.transform.SetAsFirstSibling();
+            secondary.transform.SetSiblingIndex(1);
+
+            if (dismissPrimary) DismissFooter(primary);
+            if (dismissSecondary) DismissFooter(secondary);
+            NativeButtonEdge.Add(primary);
+            NativeButtonEdge.Add(secondary);
+        }
+
+        internal static void DismissFooter(Button button)
+        {
+            var template = Resources.Load<GameObject>("UI/OverlayMessage")?.transform.Find("Buttons/Cancel")?.GetComponent<Button>();
+            if (!(button.targetGraphic is Image plate) || !(template?.targetGraphic is Image native)) return;
+            plate.sprite = native.sprite;
+            plate.overrideSprite = null;
+            plate.type = native.type;
+            plate.pixelsPerUnitMultiplier = native.pixelsPerUnitMultiplier;
+            plate.color = native.color;
+            var rect = (RectTransform)button.transform;
+            var fitter = button.GetComponent<ContentSizeFitter>();
+            if (fitter != null) fitter.enabled = false;
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 230f);
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 36f);
+            var text = button.transform.Find("Text").GetComponent<TextMeshProUGUI>();
+            var localized = text.GetComponent<LocalizeStringEvent>();
+            if (localized != null) localized.enabled = false;
+            text.color = Color.white;
+            text.alignment = TextAlignmentOptions.Center;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 14f;
+            text.fontSizeMax = 20f;
+            button.spriteState = template.spriteState;
+            button.transition = Selectable.Transition.SpriteSwap;
+        }
+
+        internal static RectTransform Block(string name, Transform parent, float width, float height)
         {
             var rect = (RectTransform)new GameObject(name, typeof(RectTransform), typeof(LayoutElement)).transform;
             rect.SetParent(parent, false);
@@ -56,7 +103,7 @@ namespace WeeklyContracts
         }
 
         // All positions are in the native UI canvas's reference pixels.
-        private static RectTransform Box(string name, Transform parent, float x, float y, float width, float height)
+        internal static RectTransform Box(string name, Transform parent, float x, float y, float width, float height)
         {
             var rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
             rect.SetParent(parent, false);
@@ -66,7 +113,7 @@ namespace WeeklyContracts
             return rect;
         }
 
-        private static void Label(RectTransform rect, TextMeshProUGUI native, string value, float size, bool right = false)
+        internal static TextMeshProUGUI Label(RectTransform rect, TextMeshProUGUI native, string value, float size, bool right = false)
         {
             var label = rect.gameObject.AddComponent<TextMeshProUGUI>();
             label.font = native.font;
@@ -79,9 +126,10 @@ namespace WeeklyContracts
             label.alignment = right ? TextAlignmentOptions.MidlineRight : TextAlignmentOptions.MidlineLeft;
             label.raycastTarget = false;
             label.text = value;
+            return label;
         }
 
-        private static void Icon(RectTransform rect, Sprite sprite)
+        internal static void Icon(RectTransform rect, Sprite sprite)
         {
             if (sprite == null) return;
             var image = rect.gameObject.AddComponent<Image>();
@@ -90,34 +138,24 @@ namespace WeeklyContracts
             image.raycastTarget = false;
         }
 
-        internal static Button Order(UIOverlayMessage page, Button native, OrderKind kind, int deadline, bool selectable)
+        internal static void Summary(UIOverlayMessage page, Button native, OrderKind kind, int deadline)
         {
             var terms = OrderTerms.Get(kind);
             var material = Kingdom.Material(kind);
             var name = Kingdom.Supported(material) ? material.GetName() : terms.Slot.ToString();
             var width = Width;
-            var row = Block(terms.Title, page.transform, width, selectable ? RowHeight + 24f : RowHeight);
+            var row = Block(terms.Title, page.transform, width, RowHeight);
             row.SetSiblingIndex(native.transform.parent.GetSiblingIndex());
             var paper = row.gameObject.AddComponent<Image>();
             var original = (Image)native.targetGraphic;
             paper.sprite = original.sprite;
             paper.type = original.type;
             paper.pixelsPerUnitMultiplier = original.pixelsPerUnitMultiplier;
-            paper.raycastTarget = selectable;
-            var button = selectable ? row.gameObject.AddComponent<Button>() : null;
-            if (button != null)
-            {
-                button.targetGraphic = paper;
-                var colors = native.colors;
-                colors.normalColor = new Color32(255, 243, 213, 255);
-                colors.selectedColor = colors.highlightedColor = new Color32(255, 196, 80, 255);
-                colors.pressedColor = new Color32(235, 157, 65, 255);
-                button.colors = colors;
-            }
-            else paper.color = new Color32(255, 243, 213, 255);
+            paper.raycastTarget = false;
+            paper.color = new Color32(255, 243, 213, 255);
             var font = native.transform.Find("Text").GetComponent<TextMeshProUGUI>();
             float half = width * .50f;
-            Label(Box("Job", row, selectable ? 35 : 14, 4, half + (selectable ? -16 : 5), 32), font, terms.Title, 29);
+            Label(Box("Job", row, 14, 4, half + 5, 32), font, terms.Title, 29);
             Label(Box("Deadline", row, half + 22, 4, half - 36, 32), font, $"{terms.Difficulty} / Night {deadline}", 24, true);
             Icon(Box("Delivery icon", row, 14, 39, 32, 32), material != null ? material.icon : null);
             Label(Box("Delivery", row, 54, 36, half - 62, 38), font, $"{terms.Quantity} {name}", 29);
@@ -125,19 +163,16 @@ namespace WeeklyContracts
             Icon(Box("Reward icon", row, half + 6, 39, 32, 32), RaceManager.Instance.GetResourceIcon(rewardType));
             Label(Box("Reward", row, half + 46, 36, half - 58, 38), font,
                 terms.Coins > 0 ? terms.Reward : "Pick 1 of 3 relics", 27);
-            if (selectable)
-            {
-                string status = Kingdom.Readiness(terms, material, Kingdom.Stock(material), out _);
-                Label(Box("Stock", row, 16, 72, width - 32, 28), font, status, 24);
-                var marker = Box("Focus arrow", row, 10, 4, 23, 32);
-                Label(marker, font, ">", 29);
-                button.gameObject.AddComponent<ContractFocus>().Bind(marker.gameObject);
-            }
-            return button;
         }
 
-        internal static void MarkFocusedRelic(Button button)
+        internal static void MarkFocusedRelic(UICardRelic card, Button button)
         {
+            // For the stock relic frame, the hover and selected sprites differ only at the outer edge.
+            var hover = RelicHover?.GetValue(card) as Sprite;
+            var selected = RelicSelected?.GetValue(card) as Sprite;
+            if (hover != null && hover.name == "card3highlight" && selected != null && selected.name == "card3selected")
+                RelicHover.SetValue(card, selected);
+
             var rect = (RectTransform)button.transform;
             var line = Box("Contract focus", rect, 0, 0, 0, 5);
             line.anchorMin = new Vector2(0f, 0f);

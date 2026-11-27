@@ -157,7 +157,12 @@ namespace SuperFantasyKingdom
         public object GetUnit(string id) => null;
     }
     internal sealed class GameData { public string runID; public string hash; }
-    internal sealed class SaveManager { public void Save() { } public void LoadGameData() { } }
+    internal sealed class SaveManager
+    {
+        public void Save(string file, string json) { }
+        public void Save(string file, string json, bool doBackUp) { }
+        public void LoadGameData() { }
+    }
     internal sealed class GameDataManager
     {
         public static GameDataManager Instance;
@@ -199,6 +204,9 @@ namespace HarmonyLib
     internal static class AccessTools
     {
         public static MethodInfo FirstMethod(Type t, Func<MethodInfo,bool> match) => t.GetMethods().First(match);
+        public static MethodInfo DeclaredMethod(Type t, string name, Type[] args) =>
+            t.GetMethod(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+                null, args, null);
     }
 }
 namespace UnityEngine

@@ -8,13 +8,14 @@ using SuperFantasyKingdom.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 
 namespace WeeklyContracts
 {
-    [BepInPlugin("sfk.weeklycontracts", "Weekly Contracts", "0.1.3")]
+    [BepInPlugin("sfk.weeklycontracts", "Weekly Contracts", "0.1.4")]
     [BepInDependency("ownly.morerelics", BepInDependency.DependencyFlags.SoftDependency)]
     public sealed class Plugin : BaseUnityPlugin
     {
@@ -22,6 +23,8 @@ namespace WeeklyContracts
         internal static Plugin Instance;
         private Harmony harmony;
         private UIOverlayMessage card;
+        private ContractModal modal;
+        private OfferChooser chooser;
         private bool announce;
         private float worldReadySince = -1f;
         private bool waitForRelease;
@@ -40,6 +43,7 @@ namespace WeeklyContracts
             harmony.PatchAll(typeof(SaveHooks.Save));
             harmony.PatchAll(typeof(CalendarLink));
             harmony.PatchAll(typeof(ContractBack));
+            harmony.PatchAll(typeof(PointerBack));
             GameManager.OnGameInit += ResetRun;
             DaytimeManager.OnMorningStart += Dawn;
             DaytimeManager.OnDayStart += Day;
@@ -63,6 +67,7 @@ namespace WeeklyContracts
             Current = null;
             Restored = null;
             card = null;
+            chooser = null;
             announce = false;
             worldReadySince = -1f;
         }
@@ -96,6 +101,7 @@ namespace WeeklyContracts
         private void Update()
         {
             if (waitForRelease && !SubmitHeld()) waitForRelease = false;
+            chooser?.Fit();
             if (!announce || Current == null) return;
             if (Current.stage != Stage.Offered) { announce = false; return; }
             if (GameManager.Instance == null || !GameManager.Instance.IsGameRunning() ||
@@ -126,6 +132,7 @@ namespace WeeklyContracts
         private void Close()
         {
             card = null;
+            chooser = null;
             OverlayManager.Instance.CloseOverlay(false);
         }
 
@@ -169,8 +176,7 @@ namespace WeeklyContracts
         private void ShowOffers(OrderKind? focus = null)
         {
             if (Current.stage != Stage.Offered) { Show(); return; }
-            Page(Current.OfferMessage, "Later", Close, "Decline…", Decline, rows: Current.offers,
-                heading: "Weekly Contracts", preferredOffer: focus);
+            Page(Current.OfferMessage, "Later", Close, "Decline…", Decline, offers: Current.offers, preferredOffer: focus);
         }
 
         private void ReviewOffer(OrderKind kind)
@@ -186,8 +192,9 @@ namespace WeeklyContracts
 
         private void Decline()
         {
+            var focusedOrder = chooser?.FocusedOrder;
             Page("Decline all contracts for this week? Your stock stays the same.",
-                "Decline", () => { Current.Decide(false); Close(); }, "Keep Offer", Show, nested: true);
+                "Decline", () => { Current.Decide(false); Close(); }, "Keep Offer", () => ShowOffers(focusedOrder), nested: true);
         }
 
         private void ReviewDelivery()
@@ -239,7 +246,11 @@ namespace WeeklyContracts
             picker.Init("Choose Your Relic");
             picker.SetText("Choose one relic as your contract reward.");
             overlays.SetCanCloseOverlay(true);
-            var later = picker.SetCancel("Later").GetComponent<Button>();
+            modal = picker.GetComponent<ContractModal>() ?? picker.gameObject.AddComponent<ContractModal>();
+            modal.Bind(picker.transform);
+            var later = modal.ReplaceMerchantLater(picker.SetCancel("Later").GetComponent<Button>());
+            later.onClick = new Button.ButtonClickedEvent();
+            later.onClick.AddListener(picker.Cancel);
             var choices = new System.Collections.Generic.List<Button>();
             Button preferredButton = null;
             int opened = Time.frameCount;
@@ -267,7 +278,7 @@ namespace WeeklyContracts
                     continue;
                 }
                 choices.Add(button);
-                ContractCards.MarkFocusedRelic(button);
+                ContractCards.MarkFocusedRelic(native, button);
                 if (id == preferred) preferredButton = button;
                 string title = relic.GetTitle();
                 string detail = relic.GetDescription();
@@ -321,13 +332,16 @@ namespace WeeklyContracts
         }
 
         private void Page(string message, string primary, Action accept, string secondary, Action other,
-            OrderKind[] rows = null, string heading = null, OrderKind? summary = null,
+            OrderKind[] offers = null, string heading = null, OrderKind? summary = null,
             Sprite art = null, OrderKind? preferredOffer = null, bool nested = false)
         {
             if (card != null && card.gameObject.activeInHierarchy)
                 card.gameObject.SetActive(false);
             var next = OverlayManager.Instance.OverlayMessage(true);
+            modal = next.gameObject.AddComponent<ContractModal>();
+            modal.Bind(next.transform.parent);
             card = next;
+            chooser = null;
             backToParent = nested;
             int opened = Time.frameCount;
             var origin = Current;
@@ -350,23 +364,14 @@ namespace WeeklyContracts
             if (primary != null) next.SetAccept(primary, () => Invoke(accept));
             else next.RemoveAccept();
             next.SetCancel(secondary, () => Invoke(other));
+            ContractCards.Footer(yes, no, primary == "Back" || primary == "Later", secondary == "Back" || secondary == "Later");
             var focus = primary != null ? yes : no;
-            if (summary.HasValue) ContractCards.Order(next, yes, summary.Value, Current.deadline, false);
-            if (rows != null && rows.Length > 0)
+            if (summary.HasValue) ContractCards.Summary(next, yes, summary.Value, Current.deadline);
+            if (offers != null && offers.Length > 0)
             {
-                var choices = new Button[rows.Length];
-                for (int i = 0; i < rows.Length; ++i)
-                {
-                    var kind = rows[i];
-                    var button = choices[i] = ContractCards.Order(next, yes, kind, Current.deadline, true);
-                    button.onClick.AddListener(() => Invoke(() => ReviewOffer(kind)));
-                }
-                for (int i = 0; i < choices.Length; ++i)
-                    Navigate(choices[i], i == 0 ? yes : choices[i-1], i+1 == choices.Length ? yes : choices[i+1], null);
-                Navigate(yes, choices[choices.Length-1], choices[0], no);
-                Navigate(no, choices[choices.Length-1], choices[0], yes);
-                int index = preferredOffer.HasValue ? Array.IndexOf(rows, preferredOffer.Value) : -1;
-                focus = choices[index >= 0 ? index : 0];
+                chooser = new OfferChooser(next, yes, no, offers, Current.deadline, preferredOffer,
+                    kind => Invoke(() => ReviewOffer(kind)));
+                focus = chooser.InitialFocus;
             }
             GamepadManager.Instance.SetGameObjectToSelect(focus.gameObject, true);
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(focus.gameObject);
@@ -383,6 +388,17 @@ namespace WeeklyContracts
                     return true;
                 owner.card.TriggerCancel();
                 return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(GameInputManager), nameof(GameInputManager.CloseOverlay))]
+        private static class PointerBack
+        {
+            // The game can dispatch right-click as a Back action before it reaches the UI.
+            private static bool Prefix(InputAction.CallbackContext context)
+            {
+                var active = Instance?.modal;
+                return active == null || !active.IsOpen || !(context.control?.device is Pointer);
             }
         }
 
@@ -419,6 +435,7 @@ namespace WeeklyContracts
                     control.anchoredPosition = new Vector2(0f, 8f);
                     foreach (Transform child in control) child.gameObject.SetActive(child.name == "Text");
                     button = control.GetComponent<Button>();
+                    NativeButtonEdge.Add(button);
                     float height = control.rect.height + 16f;
                     row.sizeDelta = new Vector2(1f, height);
                     row.GetComponent<LayoutElement>().preferredHeight = height;
