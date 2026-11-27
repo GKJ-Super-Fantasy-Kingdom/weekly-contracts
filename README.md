@@ -18,11 +18,11 @@ Choose an optional delivery at dawn and finish it before the weekly boss night. 
 
 ## Screenshots
 
-![Human Weekly Contracts selection at 1× with illustrated cards, costs, and rewards.](docs/screenshots/current/human-contracts-1x.png)
+![Human Weekly Contracts selection at 1× with illustrated cards, costs, and rewards.](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/current/human-contracts-1x.png)
 
 **Human, 1× UI scale.** Compare the delivery cost, deadline, reward and available stock on each offer.
 
-![Undead Weekly Contracts selection at 1.5× with the Candy delivery offer.](docs/screenshots/current/undead-contracts-1p5x.png)
+![Undead Weekly Contracts selection at 1.5× with the Candy delivery offer.](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/current/undead-contracts-1p5x.png)
 
 **Undead, 1.5× UI scale.** Bread for the Watch uses Candy in an Undead kingdom.
 
@@ -32,13 +32,13 @@ The Human and Undead cards show each kingdom’s delivery material. Stock and de
 
 | Contract | Human | Undead |
 | --- | --- | --- |
-| Bread for the Watch | ![Human Bread for the Watch card](docs/screenshots/cards/human-00-bread.png) | ![Undead Bread for the Watch card](docs/screenshots/cards/undead-00-bread.png) |
-| Firewood for Camp | ![Human Firewood for Camp card](docs/screenshots/cards/human-01-timber.png) | ![Undead Firewood for Camp card](docs/screenshots/cards/undead-01-timber.png) |
-| Mend the Wall | ![Human Mend the Wall card](docs/screenshots/cards/human-02-stone.png) | ![Undead Mend the Wall card](docs/screenshots/cards/undead-02-stone.png) |
-| Repair the Bridge | ![Human Repair the Bridge card](docs/screenshots/cards/human-03-boards.png) | ![Undead Repair the Bridge card](docs/screenshots/cards/undead-03-boards.png) |
-| Stock the Granary | ![Human Stock the Granary card](docs/screenshots/cards/human-04-grain.png) | ![Undead Stock the Granary card](docs/screenshots/cards/undead-04-grain.png) |
-| Feed the Scouts | ![Human Feed the Scouts card](docs/screenshots/cards/human-05-fish.png) | ![Undead Feed the Scouts card](docs/screenshots/cards/undead-05-fish.png) |
-| Fill the Canteens | ![Human Fill the Canteens card](docs/screenshots/cards/human-06-water.png) | ![Undead Fill the Canteens card](docs/screenshots/cards/undead-06-water.png) |
+| Bread for the Watch | ![Human Bread for the Watch card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/human-00-bread.png) | ![Undead Bread for the Watch card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/undead-00-bread.png) |
+| Firewood for Camp | ![Human Firewood for Camp card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/human-01-timber.png) | ![Undead Firewood for Camp card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/undead-01-timber.png) |
+| Mend the Wall | ![Human Mend the Wall card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/human-02-stone.png) | ![Undead Mend the Wall card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/undead-02-stone.png) |
+| Repair the Bridge | ![Human Repair the Bridge card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/human-03-boards.png) | ![Undead Repair the Bridge card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/undead-03-boards.png) |
+| Stock the Granary | ![Human Stock the Granary card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/human-04-grain.png) | ![Undead Stock the Granary card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/undead-04-grain.png) |
+| Feed the Scouts | ![Human Feed the Scouts card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/human-05-fish.png) | ![Undead Feed the Scouts card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/undead-05-fish.png) |
+| Fill the Canteens | ![Human Fill the Canteens card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/human-06-water.png) | ![Undead Fill the Canteens card](https://raw.githubusercontent.com/GKJ-Super-Fantasy-Kingdom/weekly-contracts/372f0aa4c64d00f72d3d1e3aebcae762aa32f169/docs/screenshots/cards/undead-06-water.png) |
 
 ## Compatibility
 
